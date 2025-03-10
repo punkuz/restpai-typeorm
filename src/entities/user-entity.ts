@@ -6,11 +6,12 @@ import {
   BeforeUpdate,
   CreateDateColumn,
   UpdateDateColumn,
-  Unique,
 } from "typeorm";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import { IsEmail, IsEnum, IsNotEmpty, Length } from "class-validator";
+import NodeError from "../extra/node-error";
+import { StatusCodes } from "../constants/status-codes";
 
 @Entity()
 // @Unique(["email"]) // Ensure email uniqueness
@@ -73,6 +74,9 @@ export class User {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
+    if (this.password !== this.passwordConfirm) {
+      throw new NodeError("Passwords do not match!", StatusCodes.BAD_REQUEST);
+    }
     if (this.password && this.password.length >= 8) {
       this.password = await bcrypt.hash(this.password, 12);
     }
@@ -95,6 +99,7 @@ export class User {
       const changedTimestamp = Math.floor(this.passwordChangedAt.getTime() / 1000);
       return JWTTimestamp < changedTimestamp;
     }
+    // False means NOT changed
     return false;
   }
 

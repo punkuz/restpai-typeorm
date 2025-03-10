@@ -13,7 +13,7 @@ const MysqlDataSource = new DataSource({
   port: 3306,
   username: "root",
   database: "node_typeorm",
-  logging: true,
+  logging: false,
   synchronize: process.env.NODE_ENV === "development",
   // logger: "simple-console",
   entities: [User]

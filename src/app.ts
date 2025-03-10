@@ -4,6 +4,8 @@ import cors from "cors";
 import helmet from "helmet";
 import hpp from "hpp";
 import userRouter from "./routes/user-routes";
+import NodeError, { ErrorHandler } from "./extra/node-error";
+import { StatusCodes } from "./constants/status-codes";
 
 //create express app
 const app = express();
@@ -34,5 +36,11 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 
 app.use("/api/v1/users", userRouter);
+
+app.all("*", (req, res, next) => {
+  next(new NodeError("The page you are looking, doesn't exist", StatusCodes.NOT_FOUND));
+});
+
+app.use(ErrorHandler)
 
 export default app;

@@ -33,7 +33,7 @@ const handleJWTExpiredError = () =>
   new NodeError('Your session has expired! Please log in again.', 401);
 
 const sendErrorDev = (err, res) => {
-  console.log('errfrom', err);
+  // console.log('errfrom', err);
   
   res.status(err.code || 500).json({
     error: err,

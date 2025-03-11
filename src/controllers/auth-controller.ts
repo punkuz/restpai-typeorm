@@ -45,9 +45,14 @@ const createSendToken = (user: User, statusCode: number, res: Response) => {
 export const signup = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     const newUser = userRepo().create(req.body);
-    // Validate before saving
-    // await validate(newUser);
 
+    //Validate before saving
+    const errors = await validate(newUser);
+    if (errors.length > 0) {
+      const errorMessages = errors.map((error) => Object.values(error.constraints)).flat();
+      return next(new NodeError(errorMessages.join(", "), StatusCodes.BAD_REQUEST));
+    }
+    
     // Save user to the database
     const savedUser = await userRepo().save(newUser);
     createSendToken(savedUser as unknown as User, StatusCodes.CREATED, res);

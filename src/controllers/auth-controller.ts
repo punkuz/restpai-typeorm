@@ -12,7 +12,7 @@ import { userData } from "../constants/user-data";
 //@return token
 const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "14d",
   });
 };
 

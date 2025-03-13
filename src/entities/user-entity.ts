@@ -1,24 +1,21 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   BeforeInsert,
   BeforeUpdate,
-  CreateDateColumn,
-  UpdateDateColumn,
+  OneToOne,
 } from "typeorm";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import { IsEmail, IsEnum, IsNotEmpty, Length } from "class-validator";
 import NodeError from "../extra/node-error";
 import { StatusCodes } from "../constants/status-codes";
+import { BaseEntity } from "./base-entitiy";
+import { Profile } from "./profile-entity";
 
 @Entity()
 // @Unique(["email"]) // Ensure email uniqueness
-export class User {
-  @PrimaryGeneratedColumn("increment")
-  id: string;
-
+export class User extends BaseEntity {
   @Column({ length: 350, unique: true })
   @IsNotEmpty({ message: "Please enter your username!" })
   username: string;
@@ -65,11 +62,8 @@ export class User {
   @Column({ type: "timestamp", nullable: true })
   lastLogin?: Date;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @OneToOne(() => Profile, profile => profile.user)
+  profile: Profile
 
   @BeforeInsert()
   @BeforeUpdate()

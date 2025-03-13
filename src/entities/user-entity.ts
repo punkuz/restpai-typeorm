@@ -1,10 +1,4 @@
-import {
-  Entity,
-  Column,
-  BeforeInsert,
-  BeforeUpdate,
-  OneToOne,
-} from "typeorm";
+import { Entity, Column, BeforeInsert, BeforeUpdate, OneToOne, OneToMany, ManyToMany, JoinTable } from "typeorm";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import { IsEmail, IsEnum, IsNotEmpty, Length } from "class-validator";
@@ -12,6 +6,7 @@ import NodeError from "../extra/node-error";
 import { StatusCodes } from "../constants/status-codes";
 import { BaseEntity } from "./base-entitiy";
 import { Profile } from "./profile-entity";
+import { Tour } from "./tour-entity";
 
 @Entity()
 // @Unique(["email"]) // Ensure email uniqueness
@@ -20,17 +15,19 @@ export class User extends BaseEntity {
   @IsNotEmpty({ message: "Please enter your username!" })
   username: string;
 
-  @Column({ unique: true})
+  @Column({ unique: true })
   @IsEmail({}, { message: "Please provide a valid email!" })
   email: string;
 
   @Column({ nullable: true })
   uniqueSlug?: string;
 
-  @Column({ type: "enum", enum: ["user", "admin"], default: "user" })
+  @Column({ type: "enum", enum: ["user", "admin", "guide"], default: "user" })
   @IsNotEmpty({ message: "Please provide a role!" })
-  @IsEnum(["user", "admin"], { message: "Role must be either 'user' or 'admin'!" })
-  role: "user" | "admin";
+  @IsEnum(["user", "admin", "guide"], {
+    message: "Role must be either 'user' or 'admin' or 'guide!",
+  })
+  role: "user" | "admin" | "guide";
 
   @Column({ select: false })
   @IsNotEmpty({ message: "Please provide a password!" })
@@ -62,8 +59,18 @@ export class User extends BaseEntity {
   @Column({ type: "timestamp", nullable: true })
   lastLogin?: Date;
 
-  @OneToOne(() => Profile, profile => profile.user)
-  profile: Profile
+  //If a User is deleted, their corresponding Profile will also be deleted.
+  @OneToOne(() => Profile, (profile) => profile.user, { onDelete: "CASCADE" })
+  profile: Profile;
+
+  //A user/guide can create multiple tours
+  @OneToMany(() => Tour, (tour) => tour.user, { onDelete: "CASCADE" })
+  tours: Tour[];
+
+  // A user can book multiple tours
+  @ManyToMany(() => Tour, (tour) => tour.bookedUsers, {cascade: ["insert", "update"]})
+  @JoinTable()
+  bookedTours: Tour[];
 
   @BeforeInsert()
   @BeforeUpdate()

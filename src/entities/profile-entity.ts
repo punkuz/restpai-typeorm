@@ -26,7 +26,8 @@ export class Profile extends BaseEntity {
   @IsNotEmpty()
   phoneNumber: string;
 
-  @OneToOne(() => User, user => user.profile)
+  //If the User ID changes, the corresponding Profile record updates automatically.
+  @OneToOne(() => User, (user) => user.profile, { onUpdate: "CASCADE" })
   @JoinColumn()
   user: User;
 }

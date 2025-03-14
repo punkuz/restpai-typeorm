@@ -4,7 +4,7 @@ import { StatusCodes } from "../constants/status-codes";
 import { User } from "../entities/user-entity";
 import { userRepo } from "../repositories/repository";
 import { validate } from "class-validator";
-import NodeError from "../extra/node-error";
+import NodeError, { validateColumns } from "../extra/node-error";
 import { asyncHandler } from "../extra/async-handler";
 import { userData } from "../constants/user-data";
 
@@ -47,9 +47,9 @@ export const signup = asyncHandler(
     const newUser = userRepo().create(req.body);
 
     //Validate before saving
-    const errors = await validate(newUser);
-    if (errors.length > 0) {
-      const errorMessages = errors.map((error) => Object.values(error.constraints)).flat();
+    const errorMessages = await validateColumns(newUser);
+    
+    if (errorMessages && errorMessages.length > 0) {
       return next(new NodeError(errorMessages.join(", "), StatusCodes.BAD_REQUEST));
     }
     

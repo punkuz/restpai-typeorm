@@ -65,7 +65,7 @@ export class Tour extends BaseEntity {
   startDates: string[];
   
   // A tour is created by a single user/guide
-  @ManyToOne(() => User, (user) => user.tours, {onUpdate: "CASCADE"})
+  @ManyToOne(() => User, (user) => user.tours, {onUpdate: "CASCADE", onDelete: "CASCADE"})
   user: User;
 
   // Many users can book multiple tours

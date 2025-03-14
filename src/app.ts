@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import hpp from "hpp";
 import userRouter from "./routes/user-routes";
+import tourRouter from "./routes/tour-routes";
 import NodeError, { ErrorHandler } from "./extra/node-error";
 import { StatusCodes } from "./constants/status-codes";
 
@@ -36,6 +37,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/tours", tourRouter);
 
 app.all("*", (req, res, next) => {
   next(new NodeError("The page you are looking, doesn't exist", StatusCodes.NOT_FOUND));
